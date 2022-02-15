@@ -3,6 +3,11 @@
  * google Rules
  *
  */
+
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
 if (!function_exists('googleRules')) {
     function googleRules(): array
     {
@@ -77,8 +82,8 @@ if (!function_exists('videoFilesRules')) {
     function videoFilesRules(): array
     {
         $rules = [
-            // //'image_file' => 'required|mimes:jpg,JPG,jpeg|max:2048|dimensions:ratio=4/3',
-            'image_file' => 'required|mimes:jpg,JPG,mp3',
+            'name' => 'required',
+            'provider' => 'exists:providers,id|required',
         ];
         return $rules;
 
@@ -91,11 +96,27 @@ if (!function_exists('videoFilesRules')) {
 if (!function_exists('videoFilesCustomMessages')) {
     function videoFilesCustomMessages(): array
     {
-        $rules = [
-            // //'image_file' => 'required|mimes:jpg,JPG,jpeg|max:2048|dimensions:ratio=4/3',
-            'image_file' => 'required|mimes:jpg,JPG,mp3',
+        $messages = [
+            'video_file.video_length' => 'The video File should be less than 5 Minutes',
+            'video_file.name' => 'The name Field is Required',
+            'video_file.provider' => 'The provider Field is Required',
         ];
-        return $rules;
+        return $messages;
 
+    }
+}
+
+/**
+ * @param Validator $validator
+ * @throws HttpResponseException
+ */
+
+if (!function_exists("failedValidation")) {
+
+    function failedValidation($validator)
+    {
+        $messageBag = collect($validator->errors()->messages());
+        $message = implode('|', $messageBag->flatten()->toArray());
+        throw new HttpResponseException(response()->json(['error' => true, 'message' => $message], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
     }
 }

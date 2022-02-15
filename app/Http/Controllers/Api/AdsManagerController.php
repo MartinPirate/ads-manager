@@ -8,10 +8,12 @@ use App\Http\Requests\UploadVideoRequest;
 use App\Models\AdsManager;
 use App\Transformers\AdsTransformer;
 use App\Transformers\Json;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Fractalistic\ArraySerializer;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdsManagerController extends Controller
 {
@@ -90,26 +92,31 @@ class AdsManagerController extends Controller
         return response()->json(Json::response(true, 'Something Went wrong while saving File, Please try again later'), 400);
     }
 
+
     public function uploadVideo(UploadVideoRequest $request): JsonResponse
     {
+        $rules = [];
+
+
+        $validator = Validator::make($request->all(), $rules);
+
+        $validator->sometimes('video_file', 'required|mimes:mp4,MP4', function ($input) {
+            return $input->provider == 1;
+        });
+
+        $validator->sometimes('video_file', 'required|mimes:mp4,MP4,mov,MOV|max:50000', function ($input) {
+            return $input->provider == 2;
+        });
+
+        if ($validator->fails()) {
+            failedValidation($validator);
+        }
+
+
         $provider = $request->provider;
         $file = $request->file("video_file");
         $provided_video_Name = $request->name;
         $mediaType = AdsManager::VIDEOS;
-
-
-        $rules = videoFilesRules();
-        $messages = videoFilesCustomMessages();
-
-        $validator = Validator::make($request->all(), $rules, $messages);
-
-        $validator->sometimes('video_file', 'file_length:60', function ($input) {
-            return $input->provider == 1;
-        });
-
-        $validator->sometimes('video_file', 'max:50000|file_length:300', function ($input) {
-            return $input->provider == 2;
-        });
 
         $extension = $file->getClientOriginalExtension();
         $fileNameToStore = $provided_video_Name . '_' . time() . '.' . $extension;
@@ -119,10 +126,9 @@ class AdsManagerController extends Controller
         $adsAttachment->provider_id = $provider;
         $adsAttachment->file_name = $fileNameToStore;
         $adsAttachment->file_url = $path;
-        /*        $adsAttachment->media_type = $mediaType;*/
         $adsAttachment->save();
 
-        if ($adsAttachment) {
+        if ("$adsAttachment") {
             $response = [
                 'error' => false,
                 'message' => 'Video File Saved Successfully',

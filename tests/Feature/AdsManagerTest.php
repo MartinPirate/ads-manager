@@ -82,17 +82,29 @@ class AdsManagerTest extends TestCase
         $extension = $file->getClientOriginalExtension();
         $fileNameToStore = $provided_file_Name . '_' . time() . "." . $extension;
 
-        Log::info($fileNameToStore);
+        $path = $file->storeAs('files', $fileNameToStore);
+
 
         $data = [
             'provider' => 1,
             'name' => "test",
             'image_file' => $file,
+            "file_url" => $path
         ];
 
         $this->post('api/v1/upload-image', $data)->assertStatus(200);
         $this->assertDatabaseHas('ads_managers',
             ['id' => 1, 'provider_id' => 1, 'file_name' => $fileNameToStore]);
+
+        //asset the file exists
+        Storage::disk('local')->assertExists($path);
+
+        //remove the test file
+        Storage::delete($path);
+
+        //assert it was deleted
+        Storage::assertMissing($path);
+
     }
 
 
@@ -102,7 +114,7 @@ class AdsManagerTest extends TestCase
      */
     public function test_file_is_saving_for_snap_chat()
     {
-        //with 4 by 3 Aspect Ratio
+        //with 16 by 9 Aspect Ratio
 
         Storage::fake('files');
         $file = UploadedFile::fake()->image('photo1.jpg', 16, 9);
@@ -111,7 +123,8 @@ class AdsManagerTest extends TestCase
         $extension = $file->getClientOriginalExtension();
         $fileNameToStore = $provided_file_Name . '_' . time() . "." . $extension;
 
-        Log::info($fileNameToStore);
+        $path = $file->storeAs('files', $fileNameToStore);
+
 
         $data = [
             'provider' => 2,
@@ -122,6 +135,14 @@ class AdsManagerTest extends TestCase
         $this->post('api/v1/upload-image', $data)->assertStatus(200);
         $this->assertDatabaseHas('ads_managers',
             ['id' => 1, 'provider_id' => 2, 'file_name' => $fileNameToStore]);
+
+        Storage::disk('local')->assertExists($path);
+
+        Storage::delete($path);
+
+        Storage::assertMissing($path);
+
+
     }
 
 
@@ -139,6 +160,7 @@ class AdsManagerTest extends TestCase
         $extension = $file->getClientOriginalExtension();
         $fileNameToStore = $provided_file_Name . '_' . time() . "." . $extension;
 
+
         $data = [
             'provider' => 1,
             'name' => "test",
@@ -148,6 +170,76 @@ class AdsManagerTest extends TestCase
         $this->post('api/v1/upload-image', $data)->assertStatus(400);
         $this->assertDatabaseMissing('ads_managers',
             ['id' => 1, 'provider_id' => 1, 'file_name' => $fileNameToStore]);
+
+
+    }
+
+    /**
+     * @test
+     * assert short videos are uploaded for SnapChat provider
+     */
+    public function test_video_files_are_uploaded_and_saved()
+    {
+        $provided_file_Name = "test_video";
+        $providerID = 2;
+
+        $path = Storage::disk('local')->path('test_files/Sample-MP4-Video-File-for-Testing.mp4');
+
+        Storage::fake('videos');
+        $file = new UploadedFile($path, $provided_file_Name, "video/mp4", null,  true);
+
+        $extension = $file->getClientOriginalExtension();
+        $fileNameToStore = $provided_file_Name . '_' . time() . "." . $extension;
+
+        $path = $file->storeAs('videos', $fileNameToStore);
+
+      $data = [
+            'provider' => 2,
+            'name' => "test_video",
+            'video_file' => $file,
+        ];
+
+
+        $this->post('api/v1/upload-video', $data)->assertStatus(200);
+        $this->assertDatabaseHas('ads_managers',
+            ['id' => 1, 'provider_id' => $providerID, 'file_name' => $fileNameToStore]);
+
+        Storage::disk('local')->assertExists($path);
+
+       Storage::delete($path);
+
+        Storage::assertMissing($path);
+
+    }
+
+    /**
+     * @test
+     * assert longer videos are not saved
+     */
+    public function test_long_video_are_not_saved()
+    {
+        $provided_file_Name = "test_video";
+        $providerID = 1;
+
+        $path = Storage::disk('local')->path('test_files/sample_video_3.mp4');
+
+        Storage::fake('videos');
+        $file = new UploadedFile($path, $provided_file_Name);
+
+        $extension = $file->getClientOriginalExtension();
+        $fileNameToStore = $provided_file_Name . '_' . time() . "." . $extension;
+
+
+        $data = [
+            'provider' => $providerID,
+            'name' => "test_video",
+            'video_file' => $file,
+        ];
+
+        $this->post('api/v1/upload-video', $data)->assertStatus(422);
+        $this->assertDatabaseMissing('ads_managers',
+            ['id' => 1, 'provider_id' => $providerID, 'file_name' => $fileNameToStore]);
+
 
     }
 

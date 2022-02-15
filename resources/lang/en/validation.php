@@ -160,4 +160,8 @@ return [
 
     'attributes' => [],
 
+    'file_length'=>  'The :attribute  Must be less than 1 Minutes for google and less than 5 Minutes for snapChat'
+
+
+
 ];

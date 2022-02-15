@@ -29,21 +29,10 @@ class UploadVideoRequest extends FormRequest
         return [
             'name' => 'required',
             'provider' => 'exists:providers,id|required',
-            'video_file' => 'mimes:mp4,MP4,mov,MOV|required|max:50000|file_length:300',
         ];
     }
 
-    /**
-     * Get the error messages for the defined validation rules.
-     *
-     * @return array
-     */
-    public function messages(): array
-    {
-        return [
-            'video_file.video_length' => 'The video File should be less than 5 Minutes',
-        ];
-    }
+
 
 
     /**
@@ -56,4 +45,6 @@ class UploadVideoRequest extends FormRequest
         $message = implode('|', $messageBag->flatten()->toArray());
         throw new HttpResponseException(response()->json(['error' => true, 'message' => $message], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
     }
+
+
 }

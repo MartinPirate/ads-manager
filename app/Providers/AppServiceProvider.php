@@ -36,6 +36,8 @@ class AppServiceProvider extends ServiceProvider
                 $duration = $ffprobe
                     ->format($value->getRealPath()) // extracts file information
                     ->get('duration');
+
+                Log::info("Duration " .$duration);
                 return (round($duration) > $parameters[0]) ? false : true;
             } else {
                 return false;

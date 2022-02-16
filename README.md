@@ -61,7 +61,7 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 7. b  To start the docker containers  run `$ ./vendor/bin/sail up` 
  
- --Laravel Sail is a light-weight command-line interface for interacting with Laravel's default Docker development environment. Sail provides a great starting point for building a Laravel application using PHP, MySQL, and Redis without requiring prior Docker experience.
+ --Laravel Sail is a light-weight command-line interface for interacting with Laravel's default Docker development environment. Sail provides a great starting point for building a Laravel application using PHP, MySQL, and Redis.
 
   c. run migration on docker   `$ ./vendor/bin/sail artisan migrate:refresh --seed`
 

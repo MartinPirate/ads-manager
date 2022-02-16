@@ -9,7 +9,7 @@ properly:
 
 - PHP v7.3+
 - Mysql v5.7+
-- Apache Server v2.4+
+- Docker 17+
 
 ### Files Configuration
 
@@ -58,6 +58,17 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 
 6. Rest Endpoints
+
+7. b  To start the docker containers  run `$ ./vendor/bin/sail up` 
+ 
+ --Laravel Sail is a light-weight command-line interface for interacting with Laravel's default Docker development environment. Sail provides a great starting point for building a Laravel application using PHP, MySQL, and Redis without requiring prior Docker experience.
+
+  c. run migration on docker   `$ ./vendor/bin/sail artisan migrate:refresh --seed`
+
+  d. for testing use   `$ ./vendor/bin/sail artisan test`
+
+
+
 
 The REST API to the add_manager app is described below.
 

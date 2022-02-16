@@ -198,4 +198,10 @@ The REST API to the add_manager app is described below.
     }
 
 
+http://127.0.0.1:8000/api/v1/files?uploaded_date=2022-02-14 06:21:23
+
+http://127.0.0.1:8000/api/v1/files?media_Type=mp4
+
+http://127.0.0.1:8000/api/v1/files?media_Type=mp4&&uploaded_date=2022-02-15 03:17:16
+
     

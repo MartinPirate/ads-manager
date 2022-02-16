@@ -6,6 +6,10 @@
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Log;
+use Lakshmaji\Thumbnail\Thumbnail;
+use ProtoneMedia\LaravelFFMpeg\FFMpeg\FFProbe;
+use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 if (!function_exists('googleRules')) {
@@ -118,5 +122,49 @@ if (!function_exists("failedValidation")) {
         $messageBag = collect($validator->errors()->messages());
         $message = implode('|', $messageBag->flatten()->toArray());
         throw new HttpResponseException(response()->json(['error' => true, 'message' => $message], JsonResponse::HTTP_UNPROCESSABLE_ENTITY));
+    }
+}
+
+
+/**
+ * @param  $path
+ * @param  $name
+ * Generate Preview IMage
+ *
+ */
+if (!function_exists("generate_preview_image")) {
+    function generate_preview_image($file, $path, $name): string
+    {
+        $half_way = get_video_half_length($file);
+        $imagePreviewName = $name . "_preview" . time() . ".jpg";
+        $image_path = "videos/previews/{$imagePreviewName}";
+        FFMpeg::fromDisk('local')
+            ->open($path)
+            ->getFrameFromSeconds($half_way)
+            ->export()
+            ->toDisk('local')
+            ->save($image_path);
+
+
+        return $image_path;
+
+    }
+}
+/**
+ * @param  $video
+ * Get the half-way of the video
+ *
+ */
+if (!function_exists("get_video_half_length")) {
+    function get_video_half_length($path)
+    {
+        $ffprobe = FFProbe::create();
+        $duration = $ffprobe
+            ->streams($path)
+            ->videos()
+            ->first()
+            ->get('duration');
+
+        return ($duration / 2);
     }
 }

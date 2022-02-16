@@ -30,14 +30,13 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('file_length', function ($attribute, $value, $parameters) {
 
             // validate the file extension
-            if (!empty($value->getClientOriginalExtension()) && (($value->getClientOriginalExtension() == 'mp4') || ($value->getClientOriginalExtension() == 'mov') ||  ($value->getClientOriginalExtension() == 'mp3'))) {
+            if (!empty($value->getClientOriginalExtension()) && (($value->getClientOriginalExtension() == 'mp4') || ($value->getClientOriginalExtension() == 'mov') || ($value->getClientOriginalExtension() == 'mp3'))) {
 
                 $ffprobe = FFProbe::create();
                 $duration = $ffprobe
                     ->format($value->getRealPath()) // extracts file information
                     ->get('duration');
 
-                Log::info("Duration " .$duration);
                 return (round($duration) > $parameters[0]) ? false : true;
             } else {
                 return false;

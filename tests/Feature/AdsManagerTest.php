@@ -145,7 +145,6 @@ class AdsManagerTest extends TestCase
 
     }
 
-
     /**
      * @test
      * assert larger files are not uploaded
@@ -186,14 +185,14 @@ class AdsManagerTest extends TestCase
         $path = Storage::disk('local')->path('test_files/Sample-MP4-Video-File-for-Testing.mp4');
 
         Storage::fake('videos');
-        $file = new UploadedFile($path, $provided_file_Name, "video/mp4", null,  true);
+        $file = new UploadedFile($path, $provided_file_Name, "video/mp4", null, true);
 
         $extension = $file->getClientOriginalExtension();
         $fileNameToStore = $provided_file_Name . '_' . time() . "." . $extension;
 
         $path = $file->storeAs('videos', $fileNameToStore);
 
-      $data = [
+        $data = [
             'provider' => 2,
             'name' => "test_video",
             'video_file' => $file,
@@ -206,7 +205,7 @@ class AdsManagerTest extends TestCase
 
         Storage::disk('local')->assertExists($path);
 
-       Storage::delete($path);
+        Storage::delete($path);
 
         Storage::assertMissing($path);
 
@@ -243,5 +242,15 @@ class AdsManagerTest extends TestCase
 
     }
 
+
+    /**
+     * @test
+     * assert snapchat  videos generate a preview image
+     * from the middle of the video
+     */
+ /*   public function test_snapchat_video_generates_thumbnails()
+    {
+
+    }*/
 
 }

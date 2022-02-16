@@ -18,10 +18,10 @@ class CreateAdsManagersTable extends Migration
             $table->unsignedBigInteger('provider_id');
             $table->string('file_name');
             $table->string('file_url');
-/*            $table->enum('media_type', ['audio', 'video', 'image']);*/
+            $table->string('preview_image_url')->nullable();
+            /*            $table->enum('media_type', ['audio', 'video', 'image']);*/
             $table->timestamps();
             $table->softDeletes();
-
 
 
             $table->foreign('provider_id')

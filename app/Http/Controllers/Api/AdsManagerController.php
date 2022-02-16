@@ -17,12 +17,32 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdsManagerController extends Controller
 {
-    public function loadAllFiles($date_created = null, $media_type = null): JsonResponse
+    public function loadAllFiles(Request $request): JsonResponse
     {
-        $ads_files = AdsManager::latest()->paginate(10);
-        //TODO work on date and media filters
+        $perPage = 5;
+        $ads_files = (new AdsManager)->newQuery();
+
+        if ($request->has('media_Type')) {
+            $ads_files->where('file_name', 'like', '%' . $request->media_Type . '%');
+        }
+        if ($request->has('uploaded_date')) {
+            $ads_files->where('created_at', "=", $request->uploaded_date);
+        }
+
+
+        $total_files = $ads_files->count();
+        $ads_files = $ads_files->orderBy("created_at", "desc")->paginate($perPage);
+
+
         $ads_files = fractal()->collection($ads_files, new AdsTransformer(), 'ads_files')->serializeWith(new ArraySerializer());
-        return response()->json($ads_files, 200, [], JSON_PRETTY_PRINT);
+
+        $response['success'] = 'true';
+        $response['totalRecords'] = $total_files;
+        $response['RecordsPerPage'] = 5;
+        $response['files'] = $ads_files;
+
+
+        return response()->json($response, 200, [], JSON_PRETTY_PRINT);
     }
 
     public function uploadImageAndAudiFiles(UploadImageAndAudioRequest $request): JsonResponse
@@ -74,7 +94,6 @@ class AdsManagerController extends Controller
         $adsAttachment->provider_id = $provider;
         $adsAttachment->file_name = $fileNameToStore;
         $adsAttachment->file_url = $path;
-        /*        $adsAttachment->media_type = $mediaType;*/
         $adsAttachment->save();
 
         if ($adsAttachment) {
@@ -122,10 +141,13 @@ class AdsManagerController extends Controller
         $fileNameToStore = $provided_video_Name . '_' . time() . '.' . $extension;
         $path = $file->storeAs('videos', $fileNameToStore);
 
+      $preview_image_path =  generate_preview_image($file,$path,$provided_video_Name);
+
         $adsAttachment = new AdsManager();
         $adsAttachment->provider_id = $provider;
         $adsAttachment->file_name = $fileNameToStore;
         $adsAttachment->file_url = $path;
+        $adsAttachment->preview_image_url = $preview_image_path;
         $adsAttachment->save();
 
         if ("$adsAttachment") {

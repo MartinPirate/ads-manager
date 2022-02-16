@@ -37,13 +37,14 @@ class AdsTransformer extends TransformerAbstract
             "id" => $ad->id,
             "fileName" => $ad->file_name,
             "filePath" => $ad->file_url,
+            "PreviewImage" => $ad->preview_image_url,
             "provider" => $this->getProviderName($ad->provider_id),
             "date_created" => $ad->created_at->format('M d, Y g:i A') /* .', ' . $ad->created_at->diffForHumans()*/
 
         ];
     }
 
-    public function getProviderName( $id)
+    public function getProviderName($id)
     {
         $provider = Provider::whereId($id)->first();
         return $provider->provider_name;

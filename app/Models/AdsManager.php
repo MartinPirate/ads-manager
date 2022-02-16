@@ -32,6 +32,8 @@ use Illuminate\Support\Carbon;
  * @property string $media_type
  * @property-read \App\Models\Provider $provider
  * @method static Builder|AdsManager whereMediaType($value)
+ * @property string|null $preview_image_url
+ * @method static Builder|AdsManager wherePreviewImageUrl($value)
  */
 class AdsManager extends Model
 {

@@ -32,7 +32,10 @@ class AppServiceProvider extends ServiceProvider
             // validate the file extension
             if (!empty($value->getClientOriginalExtension()) && (($value->getClientOriginalExtension() == 'mp4') || ($value->getClientOriginalExtension() == 'mov') || ($value->getClientOriginalExtension() == 'mp3'))) {
 
-                $ffprobe = FFProbe::create();
+                $ffprobe = FFProbe::create([
+                    'ffmpeg.binaries'  => '/usr/local/bin/ffmpeg',
+                    'ffprobe.binaries' => '/usr/local/bin/ffprobe'
+                ]);
                 $duration = $ffprobe
                     ->format($value->getRealPath()) // extracts file information
                     ->get('duration');
